@@ -1,0 +1,12 @@
+/* styles/Home.module.css */
+.main {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+  }
+  
+  .mapLoader {
+    width: 100%;
+    height: 100vh;
+    background-color: #f0f0f0;
+  }
