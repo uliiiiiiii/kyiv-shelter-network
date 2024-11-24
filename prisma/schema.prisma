@@ -14,17 +14,17 @@ datasource db {
 }
 
 model Shelter {
-  id         Int      @id @default(autoincrement())
-  district   String
-  address    String
-  type       String
-  subtype    String
-  building   String
-  owner      String
-  ownership  String
-  phone      String
+  id            Int     @id @default(autoincrement())
+  district      String
+  address       String
+  shelter_type  String
+  place       String
+  building_type String
+  owner         String
+  ownership     String
+  phone         String?
   accessibility Boolean
-  latitude   Float
-  longitude  Float
-  hours      String
+  latitude      Float
+  longitude     Float
+  hours         String?
 }
