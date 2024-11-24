@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { DivIcon } from 'leaflet'; 
+import { DivIcon } from 'leaflet';
+import MarkerClusterGroup from 'react-leaflet-markercluster';
 import styles from '@/styles/Map.module.css';
 import 'leaflet/dist/leaflet.css';
 import { Shelter } from '@/types/shelter';
@@ -44,24 +45,31 @@ export default function Map() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {shelters.map(shelter => (
-          shelter.latitude && shelter.longitude && (
-            <Marker
-              key={shelter.id}
-              position={[shelter.latitude, shelter.longitude]}
-              icon={pointIcon}
-            >
-              <Popup>
-                <div>
-                  <h3>{shelter.address}</h3>
-                  <p><strong>Type:</strong> {shelter.shelter_type}</p>
-                  <p><strong>Owner:</strong> {shelter.owner}</p>
-                  <p><strong>Пандус:</strong> {shelter.accessibility ? 'є' : 'немає'}</p>
-                </div>
-              </Popup>
-            </Marker>
-          )
-        ))}
+        <MarkerClusterGroup
+         maxClusterRadius={20} //TO-DO: give user ability to change this parameter
+         showCoverageOnHover={false} 
+         spiderfyDistanceMultiplier={2}
+        
+        >
+          {shelters.map(shelter => (
+            shelter.latitude && shelter.longitude && (
+              <Marker
+                key={shelter.id}
+                position={[shelter.latitude, shelter.longitude]}
+                icon={pointIcon}
+              >
+                <Popup>
+                  <div>
+                    <h3>{shelter.address}</h3>
+                    <p><strong>Type:</strong> {shelter.shelter_type}</p>
+                    <p><strong>Owner:</strong> {shelter.owner}</p>
+                    <p><strong>Accessibility:</strong> {shelter.accessibility ? 'Available' : 'Not Available'}</p>
+                  </div>
+                </Popup>
+              </Marker>
+            )
+          ))}
+        </MarkerClusterGroup>
       </MapContainer>
     </div>
   );
