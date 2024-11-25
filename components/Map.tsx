@@ -1,15 +1,17 @@
-'use client'
+'use client';
 
 import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { DivIcon } from 'leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
+import LocateButton from '@/components/LocateButton';
 import styles from '@/styles/Map.module.css';
 import 'leaflet/dist/leaflet.css';
 import { Shelter } from '@/types/shelter';
 
 export default function Map() {
   const [shelters, setShelters] = useState<Shelter[]>([]);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
 
   const kyivCoords: [number, number] = [50.4001, 30.6234];
 
@@ -45,31 +47,40 @@ export default function Map() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
+        <LocateButton onLocationFound={(location) => setUserLocation(location)} />
+
         <MarkerClusterGroup
-         maxClusterRadius={20} //TO-DO: give user ability to change this parameter
-         showCoverageOnHover={false} 
-         spiderfyDistanceMultiplier={2}
-        
+          maxClusterRadius={20} // TO-DO: give user ability to change this parameter
+          showCoverageOnHover={false}
+          spiderfyDistanceMultiplier={2}
         >
-          {shelters.map(shelter => (
-            shelter.latitude && shelter.longitude && (
-              <Marker
-                key={shelter.id}
-                position={[shelter.latitude, shelter.longitude]}
-                icon={pointIcon}
-              >
-                <Popup>
-                  <div>
-                    <h3>{shelter.address}</h3>
-                    <p><strong>Тип:</strong> {shelter.shelter_type}</p>
-                    <p><strong>Місце:</strong> {shelter.place}</p>
-                    <p><strong>Пандус:</strong> {shelter.accessibility ? 'Є' : 'Немає'}</p>
-                  </div>
-                </Popup>
-              </Marker>
-            )
-          ))}
+          {shelters.map(
+            (shelter) =>
+              shelter.latitude &&
+              shelter.longitude && (
+                <Marker
+                  key={shelter.id}
+                  position={[shelter.latitude, shelter.longitude]}
+                  icon={pointIcon}
+                >
+                  <Popup>
+                    <div>
+                      <h3>{shelter.address}</h3>
+                      <p><strong>Тип:</strong> {shelter.shelter_type}</p>
+                      <p><strong>Місце:</strong> {shelter.place}</p>
+                      <p><strong>Пандус:</strong> {shelter.accessibility ? 'Є' : 'Немає'}</p>
+                    </div>
+                  </Popup>
+                </Marker>
+              )
+          )}
         </MarkerClusterGroup>
+
+        {userLocation && (
+          <Marker position={userLocation} icon={pointIcon}>
+            <Popup>Your Location</Popup>
+          </Marker>
+        )}
       </MapContainer>
     </div>
   );
