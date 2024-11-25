@@ -61,9 +61,9 @@ export default function Map() {
                 <Popup>
                   <div>
                     <h3>{shelter.address}</h3>
-                    <p><strong>Type:</strong> {shelter.shelter_type}</p>
-                    <p><strong>Owner:</strong> {shelter.owner}</p>
-                    <p><strong>Accessibility:</strong> {shelter.accessibility ? 'Available' : 'Not Available'}</p>
+                    <p><strong>Тип:</strong> {shelter.shelter_type}</p>
+                    <p><strong>Місце:</strong> {shelter.place}</p>
+                    <p><strong>Пандус:</strong> {shelter.accessibility ? 'Є' : 'Немає'}</p>
                   </div>
                 </Popup>
               </Marker>
