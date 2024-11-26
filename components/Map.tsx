@@ -2,12 +2,19 @@
 
 import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { DivIcon } from 'leaflet';
+import { DivIcon, Icon } from 'leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import LocateButton from '@/components/LocateButton';
 import styles from '@/styles/Map.module.css';
 import 'leaflet/dist/leaflet.css';
 import { Shelter } from '@/types/shelter';
+
+const defaultIcon = new Icon({
+  iconUrl: '/marker-icon.png',
+  shadowUrl: '/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41]
+});
 
 export default function Map() {
   const [shelters, setShelters] = useState<Shelter[]>([]);
@@ -77,8 +84,8 @@ export default function Map() {
         </MarkerClusterGroup>
 
         {userLocation && (
-          <Marker position={userLocation} icon={pointIcon}>
-            <Popup>Your Location</Popup>
+          <Marker position={userLocation} icon={defaultIcon}>
+            <Popup>Ваша ґеолокація</Popup>
           </Marker>
         )}
       </MapContainer>
