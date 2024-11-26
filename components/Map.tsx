@@ -13,21 +13,65 @@ const defaultIcon = new Icon({
   iconUrl: '/marker-icon.png',
   shadowUrl: '/marker-shadow.png',
   iconSize: [25, 41],
-  iconAnchor: [12, 41]
+  iconAnchor: [12, 41],
 });
 
 export default function Map() {
   const [shelters, setShelters] = useState<Shelter[]>([]);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]); 
 
   const kyivCoords: [number, number] = [50.4001, 30.6234];
 
-  const pointIcon = new DivIcon({
-    className: 'shelter-icon',
-    html: '<div style="width: 8px; height: 8px; background-color: red; border-radius: 50%; border: none;"></div>',
-    iconSize: [8, 8],
-    iconAnchor: [4, 4],
-  });
+  const shelterTypes = [
+    'Укриття',
+    'Підвал',
+    'Перший поверх',
+    'Підземний паркінг',
+    'Станція метрополітену',
+    'Інше',
+    'Цокольний поверх',
+    'Підземний перехід'
+  ];
+
+  const getMarkerColor = (place: string): string => {
+    switch (place) {
+      case 'Станція метрополітену':
+        return 'green';
+      case 'Підземний перехід': 
+        return 'lime';
+      case 'Укриття': 
+        return 'yellow';
+      case 'Підвал':
+        return 'orange';
+      case 'Цокольний поверх': 
+        return 'darkorange';
+      case 'Перший поверх':
+        return 'red';
+      case 'Підземний паркінг':
+        return 'darkred';
+      case 'Інше':
+        return 'gray';
+      default:
+        return 'lightgray';
+    }
+  };
+
+  const createIcon = (color: string) =>
+    new DivIcon({
+      className: 'shelter-icon',
+      html: `<div style="width: 12px; height: 12px; background-color: ${color}; border-radius: 50%; border: 2px solid white;"></div>`,
+      iconSize: [12, 12],
+      iconAnchor: [6, 6],
+    });
+
+  const handleCheckboxChange = (type: string) => {
+    setSelectedTypes((prev) =>
+      prev.includes(type)
+        ? prev.filter((t) => t !== type)
+        : [...prev, type]
+    );
+  };
 
   useEffect(() => {
     const fetchShelters = async () => {
@@ -41,6 +85,59 @@ export default function Map() {
 
   return (
     <div className={styles.mapContainer}>
+      <div className={styles.filterPanel}>
+        <h3 style={{'paddingBottom': '10px', 'paddingRight': '30px'}}>Фільтрувати укриття:</h3>
+        {shelterTypes.map((type) => {
+          const isChecked = selectedTypes.includes(type);
+          return (
+            <label
+              key={type}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '8px',
+                cursor: 'pointer',
+              }}
+            >
+              <input
+                type="checkbox"
+                value={type}
+                checked={isChecked}
+                onChange={() => handleCheckboxChange(type)}
+                style={{ display: 'none' }}
+              />
+              <div
+                style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  backgroundColor: getMarkerColor(type),
+                  position: 'relative',
+                  marginRight: '8px',
+                  boxShadow: '0 0 5px rgba(0, 0, 0, 0.3)',
+                  border: `2px solid ${isChecked ? 'black' : 'white'}`,
+                }}
+              >
+                {isChecked && (
+                  <div
+                    style={{
+                      width: '14px',
+                      height: '14px',
+                      borderRadius: '50%',
+                      backgroundColor: 'black',
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                    }}
+                  />
+                )}
+              </div>
+              {type}
+            </label>
+          );
+        })}
+      </div>
       <MapContainer
         key="map"
         center={kyivCoords}
@@ -57,30 +154,40 @@ export default function Map() {
         <LocateButton onLocationFound={(location) => setUserLocation(location)} />
 
         <MarkerClusterGroup
-          maxClusterRadius={20} // TO-DO: give user ability to change this parameter
+          maxClusterRadius={20}
           showCoverageOnHover={false}
           spiderfyDistanceMultiplier={2}
         >
-          {shelters.map(
-            (shelter) =>
-              shelter.latitude &&
-              shelter.longitude && (
-                <Marker
-                  key={shelter.id}
-                  position={[shelter.latitude, shelter.longitude]}
-                  icon={pointIcon}
-                >
-                  <Popup>
-                    <div>
-                      <h3>{shelter.address}</h3>
-                      <p><strong>Тип:</strong> {shelter.shelter_type}</p>
-                      <p><strong>Місце:</strong> {shelter.place}</p>
-                      <p><strong>Пандус:</strong> {shelter.accessibility ? 'Є' : 'Немає'}</p>
-                    </div>
-                  </Popup>
-                </Marker>
-              )
-          )}
+          {shelters
+            .filter((shelter) =>
+              selectedTypes.length === 0 || selectedTypes.includes(shelter.place)
+            )
+            .map(
+              (shelter) =>
+                shelter.latitude &&
+                shelter.longitude && (
+                  <Marker
+                    key={shelter.id}
+                    position={[shelter.latitude, shelter.longitude]}
+                    icon={createIcon(getMarkerColor(shelter.place))}
+                  >
+                    <Popup>
+                      <div>
+                        <h3>{shelter.address}</h3>
+                        <p>
+                          <strong>Тип:</strong> {shelter.shelter_type}
+                        </p>
+                        <p>
+                          <strong>Місце:</strong> {shelter.place}
+                        </p>
+                        <p>
+                          <strong>Пандус:</strong> {shelter.accessibility ? 'Є' : 'Немає'}
+                        </p>
+                      </div>
+                    </Popup>
+                  </Marker>
+                )
+            )}
         </MarkerClusterGroup>
 
         {userLocation && (
