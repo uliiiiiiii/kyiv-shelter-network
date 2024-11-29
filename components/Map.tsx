@@ -8,6 +8,7 @@ import LocateButton from '@/components/LocateButton';
 import styles from '@/styles/Map.module.css';
 import 'leaflet/dist/leaflet.css';
 import { Shelter } from '@/types/shelter';
+import getMarkerColor from '@/utils/getMarkerColor';
 
 const defaultIcon = new Icon({
   iconUrl: '/marker-icon.png',
@@ -33,29 +34,6 @@ export default function Map() {
     'Цокольний поверх',
     'Підземний перехід'
   ];
-
-  const getMarkerColor = (place: string): string => {
-    switch (place) {
-      case 'Станція метрополітену':
-        return 'green';
-      case 'Підземний перехід': 
-        return 'lime';
-      case 'Укриття': 
-        return 'yellow';
-      case 'Підвал':
-        return 'orange';
-      case 'Цокольний поверх': 
-        return 'darkorange';
-      case 'Перший поверх':
-        return 'red';
-      case 'Підземний паркінг':
-        return 'darkred';
-      case 'Інше':
-        return 'gray';
-      default:
-        return 'lightgray';
-    }
-  };
 
   const createIcon = (color: string) =>
     new DivIcon({
