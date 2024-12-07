@@ -9,6 +9,7 @@ import styles from '@/styles/Map.module.css';
 import 'leaflet/dist/leaflet.css';
 import { Shelter } from '@/types/shelter';
 import getMarkerColor from '@/utils/getMarkerColor';
+import ShelterInfoPopup from './shelterInfoPopup';
 
 const defaultIcon = new Icon({
   iconUrl: '/marker-icon.png',
@@ -149,20 +150,8 @@ export default function Map() {
                     position={[shelter.latitude, shelter.longitude]}
                     icon={createIcon(getMarkerColor(shelter.place))}
                   >
-                    <Popup>
-                      <div>
-                        <h3>{shelter.address}</h3>
-                        <p>
-                          <strong>Тип:</strong> {shelter.shelter_type}
-                        </p>
-                        <p>
-                          <strong>Місце:</strong> {shelter.place}
-                        </p>
-                        <p>
-                          <strong>Пандус:</strong> {shelter.accessibility ? 'Є' : 'Немає'}
-                        </p>
-                      </div>
-                    </Popup>
+                    <ShelterInfoPopup address = {shelter.address} shelter_type = {shelter.shelter_type} place = {shelter.place} accessibility = {shelter.accessibility}/>
+                    
                   </Marker>
                 )
             )}
