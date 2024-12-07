@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { DivIcon, Icon } from "leaflet";
@@ -13,6 +12,25 @@ import shelterTypes from "@/constants/shelterTypes";
 import KyivCoords from "@/constants/KyivCoords";
 import ShelterTypeFilter from "@/components/ShelterTypeFilter";
 import getMarkerColor from "@/utils/getMarkerColor";
+
+// Define our own props interface since library doesn't export everything correctly
+interface MarkerClusterGroupProps {
+  maxClusterRadius?: number;
+  showCoverageOnHover?: boolean;
+  spiderfyDistanceMultiplier?: number;
+  chunkedLoading?: boolean;
+  disableClusteringAtZoom?: number;
+  spiderfyOnMaxZoom?: boolean;
+  removeOutsideVisibleBounds?: boolean;
+  animate?: boolean;
+}
+
+interface ExtendedMarkerClusterGroupProps extends MarkerClusterGroupProps {
+  children: React.ReactNode;
+}
+
+const MarkerClusterGroupWithChildren =
+  MarkerClusterGroup as React.ComponentType<ExtendedMarkerClusterGroupProps>;
 
 const defaultIcon = new Icon({
   iconUrl: "/marker-icon.png",
@@ -48,7 +66,6 @@ export default function Map() {
       const data: Shelter[] = await res.json();
       setShelters(data);
     };
-
     fetchShelters();
   }, []);
 
@@ -71,12 +88,10 @@ export default function Map() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-
         <LocateButton
           onLocationFound={(location) => setUserLocation(location)}
         />
-
-        <MarkerClusterGroup
+        <MarkerClusterGroupWithChildren
           maxClusterRadius={20}
           showCoverageOnHover={false}
           spiderfyDistanceMultiplier={2}
@@ -105,8 +120,7 @@ export default function Map() {
                   </Marker>
                 )
             )}
-        </MarkerClusterGroup>
-
+        </MarkerClusterGroupWithChildren>
         {userLocation && (
           <Marker position={userLocation} icon={defaultIcon}>
             <Popup>Ваша ґеолокація</Popup>
