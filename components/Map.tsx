@@ -8,10 +8,11 @@ import LocateButton from "@/components/LocateButton";
 import styles from "@/styles/Map.module.css";
 import "leaflet/dist/leaflet.css";
 import { Shelter } from "@/types/shelter";
-import getMarkerColor from "@/utils/getMarkerColor";
 import ShelterInfoPopup from "./shelterInfoPopup";
 import shelterTypes from "@/constants/shelterTypes";
 import KyivCoords from "@/constants/KyivCoords";
+import ShelterTypeFilter from "@/components/ShelterTypeFilter";
+import getMarkerColor from "@/utils/getMarkerColor";
 
 const defaultIcon = new Icon({
   iconUrl: "/marker-icon.png",
@@ -53,43 +54,11 @@ export default function Map() {
 
   return (
     <div className={styles.mapContainer}>
-      <div className={styles.filterPanel}>
-        <h3 style={{ paddingBottom: "10px", paddingRight: "30px" }}>
-          Фільтрувати укриття:
-        </h3>
-        {shelterTypes.map((type) => {
-          const isChecked = selectedTypes.includes(type);
-          return (
-            <label
-              key={type}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginBottom: "8px",
-                cursor: "pointer",
-              }}
-            >
-              <input
-                type="checkbox"
-                value={type}
-                checked={isChecked}
-                onChange={() => handleCheckboxChange(type)}
-                style={{ display: "none" }}
-              />
-              <div
-                className={styles.checkbox}
-                style={{
-                  backgroundColor: getMarkerColor(type),
-                  border: `2px solid ${isChecked ? "black" : "white"}`,
-                }}
-              >
-                {isChecked && <div className={styles.checkedInput} />}
-              </div>
-              {type}
-            </label>
-          );
-        })}
-      </div>
+      <ShelterTypeFilter
+        types={shelterTypes}
+        selectedTypes={selectedTypes}
+        onTypeChange={handleCheckboxChange}
+      />
       <MapContainer
         key="map"
         center={KyivCoords}
