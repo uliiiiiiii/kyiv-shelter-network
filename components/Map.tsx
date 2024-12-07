@@ -10,6 +10,8 @@ import "leaflet/dist/leaflet.css";
 import { Shelter } from "@/types/shelter";
 import getMarkerColor from "@/utils/getMarkerColor";
 import ShelterInfoPopup from "./shelterInfoPopup";
+import shelterTypes from "@/constants/shelterTypes";
+import KyivCoords from "@/constants/KyivCoords";
 
 const defaultIcon = new Icon({
   iconUrl: "/marker-icon.png",
@@ -24,19 +26,6 @@ export default function Map() {
     null
   );
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-
-  const kyivCoords: [number, number] = [50.4001, 30.6234];
-
-  const shelterTypes = [
-    "Укриття",
-    "Підвал",
-    "Перший поверх",
-    "Підземний паркінг",
-    "Станція метрополітену",
-    "Інше",
-    "Цокольний поверх",
-    "Підземний перехід",
-  ];
 
   const createIcon = (color: string) =>
     new DivIcon({
@@ -88,31 +77,13 @@ export default function Map() {
                 style={{ display: "none" }}
               />
               <div
+                className={styles.checkbox}
                 style={{
-                  width: "24px",
-                  height: "24px",
-                  borderRadius: "50%",
                   backgroundColor: getMarkerColor(type),
-                  position: "relative",
-                  marginRight: "8px",
-                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.3)",
                   border: `2px solid ${isChecked ? "black" : "white"}`,
                 }}
               >
-                {isChecked && (
-                  <div
-                    style={{
-                      width: "14px",
-                      height: "14px",
-                      borderRadius: "50%",
-                      backgroundColor: "black",
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                    }}
-                  />
-                )}
+                {isChecked && <div className={styles.checkedInput} />}
               </div>
               {type}
             </label>
@@ -121,7 +92,7 @@ export default function Map() {
       </div>
       <MapContainer
         key="map"
-        center={kyivCoords}
+        center={KyivCoords}
         zoom={11}
         maxZoom={18}
         minZoom={11}
