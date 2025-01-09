@@ -24,9 +24,16 @@ const DEFAULT_ICON = new Icon({
 });
 
 const CLUSTER_GROUP_PROPS = {
-  maxClusterRadius: 20,
+  maxClusterRadius: 10,
   showCoverageOnHover: false,
   spiderfyDistanceMultiplier: 2,
+  iconCreateFunction: () => {
+    return new DivIcon({
+      html: `<div style="display: none;"></div>`,
+      className: "custom-cluster-icon",
+      iconSize: [0, 0],
+    });
+  },
 } as const;
 
 export default function Map() {
