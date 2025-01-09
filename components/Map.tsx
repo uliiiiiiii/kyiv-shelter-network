@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { DivIcon, Icon } from "leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
@@ -13,31 +13,21 @@ import KyivCoords from "@/constants/KyivCoords";
 import ShelterTypeFilter from "@/components/ShelterTypeFilter";
 import getMarkerColor from "@/utils/getMarkerColor";
 
-// Define our own props interface since library doesn't export everything correctly
-interface MarkerClusterGroupProps {
-  maxClusterRadius?: number;
-  showCoverageOnHover?: boolean;
-  spiderfyDistanceMultiplier?: number;
-  chunkedLoading?: boolean;
-  disableClusteringAtZoom?: number;
-  spiderfyOnMaxZoom?: boolean;
-  removeOutsideVisibleBounds?: boolean;
-  animate?: boolean;
-}
-
-interface ExtendedMarkerClusterGroupProps extends MarkerClusterGroupProps {
-  children: React.ReactNode;
-}
-
 const MarkerClusterGroupWithChildren =
   MarkerClusterGroup as React.ComponentType<ExtendedMarkerClusterGroupProps>;
 
-const defaultIcon = new Icon({
+const DEFAULT_ICON = new Icon({
   iconUrl: "/marker-icon.png",
   shadowUrl: "/marker-shadow.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
+
+const CLUSTER_GROUP_PROPS = {
+  maxClusterRadius: 20,
+  showCoverageOnHover: false,
+  spiderfyDistanceMultiplier: 2,
+} as const;
 
 export default function Map() {
   const [shelters, setShelters] = useState<Shelter[]>([]);
@@ -46,28 +36,43 @@ export default function Map() {
   );
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
 
-  const createIcon = (color: string) =>
-    new DivIcon({
+  const createIcon = useCallback((color: string) => {
+    return new DivIcon({
       className: "shelter-icon",
       html: `<div style="width: 12px; height: 12px; background-color: ${color}; border-radius: 50%; border: 2px solid white;"></div>`,
       iconSize: [12, 12],
       iconAnchor: [6, 6],
     });
+  }, []);
 
-  const handleCheckboxChange = (type: string) => {
+  const handleCheckboxChange = useCallback((type: string) => {
     setSelectedTypes((prev) =>
       prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
     );
-  };
+  }, []);
 
   useEffect(() => {
     const fetchShelters = async () => {
-      const res = await fetch("/api/shelters");
-      const data: Shelter[] = await res.json();
-      setShelters(data);
+      try {
+        const res = await fetch("/api/shelters");
+        if (!res.ok) throw new Error("Failed to fetch shelters");
+        const data: Shelter[] = await res.json();
+        setShelters(data);
+      } catch (error) {
+        console.error("Error fetching shelters:", error);
+      }
     };
     fetchShelters();
   }, []);
+
+  const filteredShelters = useMemo(() => {
+    return shelters.filter(
+      (shelter) =>
+        (selectedTypes.length === 0 || selectedTypes.includes(shelter.place)) &&
+        shelter.latitude &&
+        shelter.longitude
+    );
+  }, [shelters, selectedTypes]);
 
   return (
     <div className={styles.mapContainer}>
@@ -88,41 +93,25 @@ export default function Map() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <LocateButton
-          onLocationFound={(location) => setUserLocation(location)}
-        />
-        <MarkerClusterGroupWithChildren
-          maxClusterRadius={20}
-          showCoverageOnHover={false}
-          spiderfyDistanceMultiplier={2}
-        >
-          {shelters
-            .filter(
-              (shelter) =>
-                selectedTypes.length === 0 ||
-                selectedTypes.includes(shelter.place)
-            )
-            .map(
-              (shelter) =>
-                shelter.latitude &&
-                shelter.longitude && (
-                  <Marker
-                    key={shelter.id}
-                    position={[shelter.latitude, shelter.longitude]}
-                    icon={createIcon(getMarkerColor(shelter.place))}
-                  >
-                    <ShelterInfoPopup
-                      address={shelter.address}
-                      shelter_type={shelter.shelter_type}
-                      place={shelter.place}
-                      accessibility={shelter.accessibility}
-                    />
-                  </Marker>
-                )
-            )}
+        <LocateButton onLocationFound={setUserLocation} />
+        <MarkerClusterGroupWithChildren {...CLUSTER_GROUP_PROPS}>
+          {filteredShelters.map((shelter) => (
+            <Marker
+              key={shelter.id}
+              position={[shelter.latitude!, shelter.longitude!]}
+              icon={createIcon(getMarkerColor(shelter.place))}
+            >
+              <ShelterInfoPopup
+                address={shelter.address}
+                shelter_type={shelter.shelter_type}
+                place={shelter.place}
+                accessibility={shelter.accessibility}
+              />
+            </Marker>
+          ))}
         </MarkerClusterGroupWithChildren>
         {userLocation && (
-          <Marker position={userLocation} icon={defaultIcon}>
+          <Marker position={userLocation} icon={DEFAULT_ICON}>
             <Popup>Ваша ґеолокація</Popup>
           </Marker>
         )}
