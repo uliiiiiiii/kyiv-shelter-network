@@ -1,16 +1,18 @@
 "use client";
+
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { DivIcon, Icon } from "leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import LocateButton from "@/components/LocateButton";
+import Search from "@/components/Search";
+import ShelterInfoPopup from "@/components/ShelterInfoPopup";
+import ShelterTypeFilter from "@/components/ShelterTypeFilter";
 import styles from "@/styles/Map.module.css";
 import "leaflet/dist/leaflet.css";
 import { Shelter } from "@/types/shelter";
-import ShelterInfoPopup from "./shelterInfoPopup";
 import shelterTypes from "@/constants/shelterTypes";
 import KyivCoords from "@/constants/KyivCoords";
-import ShelterTypeFilter from "@/components/ShelterTypeFilter";
 import getMarkerColor from "@/utils/getMarkerColor";
 
 const MarkerClusterGroupWithChildren =
@@ -38,10 +40,28 @@ const CLUSTER_GROUP_PROPS = {
 
 export default function Map() {
   const [shelters, setShelters] = useState<Shelter[]>([]);
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(
+  const [currentMarker, setCurrentMarker] = useState<[number, number] | null>(
     null
   );
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchShelters = async () => {
+      try {
+        const res = await fetch("/api/shelters");
+        if (!res.ok) throw new Error("Failed to fetch shelters");
+        const data: Shelter[] = await res.json();
+        setShelters(data);
+      } catch (error) {
+        console.error("Error fetching shelters:", error);
+      }
+    };
+    fetchShelters();
+  }, []);
+
+  const handleLocationAdded = useCallback((location: [number, number]) => {
+    setCurrentMarker(location);
+  }, []);
 
   const createIcon = useCallback((color: string) => {
     return new DivIcon({
@@ -56,20 +76,6 @@ export default function Map() {
     setSelectedTypes((prev) =>
       prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
     );
-  }, []);
-
-  useEffect(() => {
-    const fetchShelters = async () => {
-      try {
-        const res = await fetch("/api/shelters");
-        if (!res.ok) throw new Error("Failed to fetch shelters");
-        const data: Shelter[] = await res.json();
-        setShelters(data);
-      } catch (error) {
-        console.error("Error fetching shelters:", error);
-      }
-    };
-    fetchShelters();
   }, []);
 
   const filteredShelters = useMemo(() => {
@@ -89,18 +95,18 @@ export default function Map() {
         onTypeChange={handleCheckboxChange}
       />
       <MapContainer
-        key="map"
         center={KyivCoords}
         zoom={11}
         maxZoom={18}
         minZoom={11}
         className={styles.map}
       >
+        <Search onLocationAdded={handleLocationAdded} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <LocateButton onLocationFound={setUserLocation} />
+        <LocateButton onLocationFound={handleLocationAdded} />
         <MarkerClusterGroupWithChildren {...CLUSTER_GROUP_PROPS}>
           {filteredShelters.map((shelter) => (
             <Marker
@@ -117,9 +123,11 @@ export default function Map() {
             </Marker>
           ))}
         </MarkerClusterGroupWithChildren>
-        {userLocation && (
-          <Marker position={userLocation} icon={DEFAULT_ICON}>
-            <Popup>Ваша ґеолокація</Popup>
+        {currentMarker && (
+          <Marker position={currentMarker} icon={DEFAULT_ICON}>
+            <Popup>
+              {`Marker at: ${currentMarker[0]}, ${currentMarker[1]}`}
+            </Popup>
           </Marker>
         )}
       </MapContainer>
