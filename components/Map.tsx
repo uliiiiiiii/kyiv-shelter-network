@@ -14,6 +14,8 @@ import { Shelter } from "@/types/shelter";
 import shelterTypes from "@/constants/shelterTypes";
 import KyivCoords from "@/constants/KyivCoords";
 import getMarkerColor from "@/utils/getMarkerColor";
+import findNearestShelter from "@/utils/findNearestShelter";
+import haversine from "@/utils/calculateDistance";
 
 const MarkerClusterGroupWithChildren =
   MarkerClusterGroup as React.ComponentType<ExtendedMarkerClusterGroupProps>;
@@ -44,6 +46,14 @@ export default function Map() {
     null
   );
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [nearestShelter, setNearestShelter] = useState<Shelter | null>(null);
+
+  useEffect(() => {
+    if (currentMarker) {
+      const nearest = findNearestShelter(currentMarker, shelters);
+      setNearestShelter(nearest);
+    }
+  }, [currentMarker, shelters]);
 
   useEffect(() => {
     const fetchShelters = async () => {
@@ -129,6 +139,39 @@ export default function Map() {
               {`Marker at: ${currentMarker[0]}, ${currentMarker[1]}`}
             </Popup>
           </Marker>
+        )}
+        {nearestShelter && (
+          <Marker
+            position={[nearestShelter.latitude!, nearestShelter.longitude!]}
+            icon={
+              new DivIcon({
+                className: "nearest-shelter-icon",
+                html: `<div style="width: 12px; height: 12px;  border: 3px solid hotpink; border-radius: 50%; transform: scale(1.2); transition: transform 0.3s ease; border-radius: 50%;"></div>`,
+                iconSize: [12, 12],
+                iconAnchor: [6, 6],
+              })
+            }
+          >
+            <Popup>
+              <strong>Найближче укриття</strong>
+              <br />
+              Адреса: {nearestShelter.address}
+              <br />
+              Тип: {nearestShelter.building_type}
+            </Popup>
+          </Marker>
+        )}
+        {nearestShelter && currentMarker && (
+          <div className={styles.nearestInfo}>
+            Найближче укриття знаходиться за{" "}
+            {haversine(
+              currentMarker[0],
+              currentMarker[1],
+              nearestShelter.latitude!,
+              nearestShelter.longitude!
+            ).toFixed(2)}{" "}
+            км.
+          </div>
         )}
       </MapContainer>
     </div>

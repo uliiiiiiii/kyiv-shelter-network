@@ -12,5 +12,5 @@ export interface Shelter {
     latitude: number;
     longitude: number;
     hours: string;
-  }
+}
   
