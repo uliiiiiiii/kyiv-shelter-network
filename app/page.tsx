@@ -1,19 +1,21 @@
 "use client";
 
-import Map from "@/components/Map";
-
 import dynamic from "next/dynamic";
-import styles from "@/styles/Home.module.css";
-
-// const Map = dynamic(() => import("@/components/Map"), {
-//   ssr: false,
-//   loading: () => <p>Loading map...</p>,
-// });
+import { useMemo } from "react";
 
 export default function Home() {
+  const Map = useMemo(
+    () =>
+      dynamic(() => import("@/components/Map"), {
+        loading: () => <p>A map is loading</p>,
+        ssr: false,
+      }),
+    []
+  );
+
   return (
-    // <main className={styles.main}>
-    <Map />
-    // </main>
+    <div>
+      <Map />
+    </div>
   );
 }
