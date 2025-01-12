@@ -49,6 +49,11 @@ interface RoutingMachineProps {
   shelterPosition: any;
 }
 
+interface CustomRoutingControlOptions extends L.Routing.RoutingControlOptions {
+  createMarker?: () => null;
+  draggableWaypoints?: boolean;
+}
+
 const RoutingMachine = ({
   userPosition,
   shelterPosition,
@@ -77,7 +82,7 @@ const RoutingMachine = ({
         return null;
       },
       containerClassName: styles.customRoutingContainer,
-    }).addTo(map);
+    } as CustomRoutingControlOptions).addTo(map);
 
     return () => {
       map.removeControl(routingControl);

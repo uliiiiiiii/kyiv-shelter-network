@@ -1,6 +1,12 @@
+"use client";
+
+import dynamic from "next/dynamic";
 import styles from "@/styles/Home.module.css";
-import "leaflet/dist/leaflet.css";
-import Map from "@/components/Map";
+
+const Map = dynamic(() => import("@/components/Map"), {
+  ssr: false,
+  loading: () => <p>Loading map...</p>,
+});
 
 export default function Home() {
   return (
