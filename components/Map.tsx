@@ -118,22 +118,22 @@ export default function Map() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <LocateButton onLocationFound={handleLocationAdded} />
-        <MarkerClusterGroupWithChildren {...CLUSTER_GROUP_PROPS}>
-          {filteredShelters.map((shelter) => (
-            <Marker
-              key={shelter.id}
-              position={[shelter.latitude!, shelter.longitude!]}
-              icon={createIcon(getMarkerColor(shelter.place))}
-            >
-              <ShelterInfoPopup
-                address={shelter.address}
-                shelter_type={shelter.shelter_type}
-                place={shelter.place}
-                accessibility={shelter.accessibility}
-              />
-            </Marker>
-          ))}
-        </MarkerClusterGroupWithChildren>
+        {/* <MarkerClusterGroupWithChildren {...CLUSTER_GROUP_PROPS}> */}
+        {filteredShelters.map((shelter) => (
+          <Marker
+            key={shelter.id}
+            position={[shelter.latitude!, shelter.longitude!]}
+            icon={createIcon(getMarkerColor(shelter.place))}
+          >
+            <ShelterInfoPopup
+              address={shelter.address}
+              shelter_type={shelter.shelter_type}
+              place={shelter.place}
+              accessibility={shelter.accessibility}
+            />
+          </Marker>
+        ))}
+        {/* </MarkerClusterGroupWithChildren> */}
         {currentMarker && (
           <Marker position={currentMarker} icon={DEFAULT_ICON}>
             <Popup>
