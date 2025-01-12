@@ -40,3 +40,18 @@
   margin-right: 8px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);  
 }
+
+.nearestShelterInfo{
+  position: absolute;
+  z-index: 999999;
+  color: black;
+  bottom: 100px;
+  background-color: rgb(255, 255. 255);
+  background-color: white;
+  font-size: 17px;
+  left: 10px;
+  padding: 10px;
+  transition: transform 0.3s ease;
+  border-radius: 10px;
+}
+

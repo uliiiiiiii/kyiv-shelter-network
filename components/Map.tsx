@@ -47,6 +47,7 @@ export default function Map() {
   );
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [nearestShelter, setNearestShelter] = useState<Shelter | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(11);
 
   useEffect(() => {
     if (currentMarker) {
@@ -106,7 +107,7 @@ export default function Map() {
       />
       <MapContainer
         center={KyivCoords}
-        zoom={11}
+        zoom={zoomLevel}
         maxZoom={18}
         minZoom={11}
         className={styles.map}
@@ -162,7 +163,7 @@ export default function Map() {
           </Marker>
         )}
         {nearestShelter && currentMarker && (
-          <div className={styles.nearestInfo}>
+          <div className={styles.nearestShelterInfo}>
             Найближче укриття знаходиться за{" "}
             {haversine(
               currentMarker[0],
