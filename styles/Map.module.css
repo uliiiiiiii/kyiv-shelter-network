@@ -55,3 +55,18 @@
   border-radius: 10px;
 }
 
+.customRoutingContainer {
+  position: fixed;
+  top: 10px;
+  right: 20px;
+  top: 100px;
+  left: 10px;
+  background: white;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: none;
+  z-index: 1000;
+  color: black;
+}
+

@@ -10,12 +10,16 @@ import ShelterInfoPopup from "@/components/ShelterInfoPopup";
 import ShelterTypeFilter from "@/components/ShelterTypeFilter";
 import styles from "@/styles/Map.module.css";
 import "leaflet/dist/leaflet.css";
+import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import { Shelter } from "@/types/shelter";
 import shelterTypes from "@/constants/shelterTypes";
 import KyivCoords from "@/constants/KyivCoords";
 import getMarkerColor from "@/utils/getMarkerColor";
 import findNearestShelter from "@/utils/findNearestShelter";
 import haversine from "@/utils/calculateDistance";
+import L from "leaflet";
+import "leaflet-routing-machine";
+import { useMap } from "react-leaflet";
 
 const MarkerClusterGroupWithChildren =
   MarkerClusterGroup as React.ComponentType<ExtendedMarkerClusterGroupProps>;
@@ -39,6 +43,49 @@ const CLUSTER_GROUP_PROPS = {
     });
   },
 } as const;
+
+interface RoutingMachineProps {
+  userPosition: any;
+  shelterPosition: any;
+}
+
+const RoutingMachine = ({
+  userPosition,
+  shelterPosition,
+}: RoutingMachineProps) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map || !userPosition || !shelterPosition) return;
+
+    const routingControl = L.Routing.control({
+      waypoints: [
+        L.latLng(userPosition[0], userPosition[1]),
+        L.latLng(shelterPosition[0], shelterPosition[1]),
+      ],
+      routeWhileDragging: false,
+      showAlternatives: false,
+      fitSelectedRoutes: true,
+      lineOptions: {
+        styles: [{ color: "hotpink", opacity: 0.8, weight: 4 }],
+        extendToWaypoints: false,
+        missingRouteTolerance: 0,
+      },
+      addWaypoints: false,
+      draggableWaypoints: false,
+      createMarker: function () {
+        return null;
+      },
+      containerClassName: styles.customRoutingContainer,
+    }).addTo(map);
+
+    return () => {
+      map.removeControl(routingControl);
+    };
+  }, [map, userPosition, shelterPosition]);
+
+  return null;
+};
 
 export default function Map() {
   const [shelters, setShelters] = useState<Shelter[]>([]);
@@ -118,7 +165,6 @@ export default function Map() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <LocateButton onLocationFound={handleLocationAdded} />
-        {/* <MarkerClusterGroupWithChildren {...CLUSTER_GROUP_PROPS}> */}
         {filteredShelters.map((shelter) => (
           <Marker
             key={shelter.id}
@@ -133,7 +179,6 @@ export default function Map() {
             />
           </Marker>
         ))}
-        {/* </MarkerClusterGroupWithChildren> */}
         {currentMarker && (
           <Marker position={currentMarker} icon={DEFAULT_ICON}>
             <Popup>
@@ -161,6 +206,15 @@ export default function Map() {
               Тип: {nearestShelter.building_type}
             </Popup>
           </Marker>
+        )}
+        {currentMarker && nearestShelter && (
+          <RoutingMachine
+            userPosition={currentMarker}
+            shelterPosition={[
+              nearestShelter.latitude!,
+              nearestShelter.longitude!,
+            ]}
+          />
         )}
         {nearestShelter && currentMarker && (
           <div className={styles.nearestShelterInfo}>
