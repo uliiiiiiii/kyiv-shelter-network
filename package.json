@@ -18,10 +18,12 @@
     "eslint": "^8",
     "eslint-config-next": "15.0.3",
     "leaflet-routing-machine": "^3.2.12",
+    "react-leaflet-cluster": "^2.1.0",
     "typescript": "^5"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "@types/leaflet.markercluster": "^1.5.5",
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
     "next": "^15.0.3",

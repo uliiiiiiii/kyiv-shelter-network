@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import MarkerClusterGroup from "react-leaflet-markercluster";
+import L from "leaflet";
 import LocateButton from "@/components/LocateButton";
 import Search from "@/components/Search";
 import ShelterTypeFilter from "@/components/ShelterTypeFilter";
@@ -16,7 +18,15 @@ import { Shelter } from "@/types/shelter";
 import styles from "@/styles/Map.module.css";
 import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
+import "react-leaflet-markercluster/dist/styles.min.css";
 import { MapProps } from "@/types/map";
+
+interface ExtendedMarkerClusterGroupProps extends L.MarkerClusterGroupOptions {
+  children: React.ReactNode;
+}
+
+const TypedMarkerClusterGroup: React.FC<ExtendedMarkerClusterGroupProps> =
+  MarkerClusterGroup as any;
 
 export const Map = ({
   initialZoom = 11,
@@ -91,13 +101,18 @@ export const Map = ({
         />
         <LocateButton onLocationFound={handleLocationAdded} />
 
-        {filteredShelters.map((shelter) => (
-          <ShelterMarker
-            key={shelter.id}
-            shelter={shelter}
-            isNearest={nearestShelter?.id === shelter.id}
-          />
-        ))}
+        <TypedMarkerClusterGroup
+          disableClusteringAtZoom={15}
+          showCoverageOnHover={false}
+        >
+          {filteredShelters.map((shelter) => (
+            <ShelterMarker
+              key={shelter.id}
+              shelter={shelter}
+              isNearest={nearestShelter?.id === shelter.id}
+            />
+          ))}
+        </TypedMarkerClusterGroup>
 
         {currentMarker && (
           <Marker position={currentMarker} icon={DEFAULT_ICON}>
