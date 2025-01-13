@@ -13,7 +13,7 @@ export const ShelterMarker = ({ shelter, isNearest }: ShelterMarkerProps) => {
   const icon = new DivIcon({
     className: isNearest ? "nearest-shelter-icon" : "shelter-icon",
     html: isNearest
-      ? `<div style="width: 12px; height: 12px; border: 3px solid hotpink; border-radius: 50%; background-color: ${getMarkerColor(
+      ? `<div style="width: 12px; height: 12px; border: 3px solid black; border-radius: 50%; background-color: ${getMarkerColor(
           shelter.place
         )};"></div>`
       : `<div style="width: 12px; height: 12px; background-color: ${getMarkerColor(

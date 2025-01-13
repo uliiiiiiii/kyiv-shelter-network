@@ -28,6 +28,8 @@ interface ExtendedMarkerClusterGroupProps extends L.MarkerClusterGroupOptions {
 const TypedMarkerClusterGroup: React.FC<ExtendedMarkerClusterGroupProps> =
   MarkerClusterGroup as any;
 
+const routeColors = ["green", "orange", "red"];
+
 export const Map = ({
   initialZoom = 11,
   minZoom = 11,
@@ -109,30 +111,30 @@ export const Map = ({
             <ShelterMarker
               key={shelter.id}
               shelter={shelter}
-              isNearest={
-                Array.isArray(nearestShelters) &&
-                nearestShelters.some((s) => s.id === shelter.id)
-              }
+              isNearest={nearestShelters.some((s) => s.id === shelter.id)}
             />
           ))}
         </TypedMarkerClusterGroup>
-
         {currentMarker && (
           <Marker position={currentMarker} icon={DEFAULT_ICON}>
             <Popup>
               {`Marker at: ${currentMarker[0]}, ${currentMarker[1]}`}
+              <h1>{nearestShelters.toString()}</h1>
             </Popup>
           </Marker>
         )}
 
         {currentMarker &&
-          nearestShelters.map((shelter) => (
-            <RoutingMachine
-              key={shelter.id}
-              userPosition={currentMarker}
-              shelterPosition={[shelter.latitude!, shelter.longitude!]}
-            />
-          ))}
+          nearestShelters.map((shelter, index) => {
+            return (
+              <RoutingMachine
+                key={shelter.id}
+                userPosition={currentMarker}
+                shelterPosition={[shelter.latitude!, shelter.longitude!]}
+                color={routeColors[index % routeColors.length]}
+              />
+            );
+          })}
 
         {nearestShelters.length > 0 && currentMarker && (
           <div className={styles.nearestShelterInfo}>

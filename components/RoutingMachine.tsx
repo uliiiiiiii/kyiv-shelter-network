@@ -8,6 +8,7 @@ import styles from "@/styles/Map.module.css";
 export const RoutingMachine = ({
   userPosition,
   shelterPosition,
+  color = "blue",
 }: RoutingMachineProps) => {
   const map = useMap();
 
@@ -25,7 +26,7 @@ export const RoutingMachine = ({
       showAlternatives: false,
       fitSelectedRoutes: true,
       lineOptions: {
-        styles: [{ color: "hotpink", opacity: 0.8, weight: 4 }],
+        styles: [{ color: color, opacity: 0.8, weight: 4 }],
         extendToWaypoints: false,
         missingRouteTolerance: 0,
       },

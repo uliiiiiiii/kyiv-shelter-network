@@ -20,6 +20,7 @@ export interface ExtendedMarkerClusterGroupProps extends MarkerClusterGroupProps
 export interface RoutingMachineProps {
   userPosition: [number, number];
   shelterPosition: [number, number];
+  color: string
 }
 
 export interface CustomRoutingControlOptions extends L.Routing.RoutingControlOptions {

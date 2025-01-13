@@ -19,6 +19,8 @@ export default function findNearestShelters(
         shelter.longitude!
       ),
     }));
+  
+  console.log(sheltersWithDistance.sort((a, b) => a.distance - b.distance))
 
   return sheltersWithDistance
     .sort((a, b) => a.distance - b.distance)
