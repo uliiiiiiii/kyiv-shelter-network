@@ -1,30 +1,27 @@
 import haversine from "@/utils/calculateDistance";
 import { Shelter } from "@/types/shelter";
 
-export default function findNearestShelter(
+export default function findNearestShelters(
   userLocation: [number, number] | null,
-  shelters: Shelter[]
-): Shelter | null {
-  if (!userLocation) return null;
+  shelters: Shelter[],
+  count: number = 1
+): Shelter[] {
+  if (!userLocation) return [];
 
-  let nearestShelter: Shelter | null = null;
-  let minDistance = Infinity;
-
-  shelters.forEach((shelter) => {
-    if (shelter.latitude && shelter.longitude) {
-      const distance = haversine(
+  const sheltersWithDistance = shelters
+    .filter((shelter) => shelter.latitude && shelter.longitude)
+    .map((shelter) => ({
+      ...shelter,
+      distance: haversine(
         userLocation[0],
         userLocation[1],
-        shelter.latitude,
-        shelter.longitude
-      );
+        shelter.latitude!,
+        shelter.longitude!
+      ),
+    }));
 
-      if (distance < minDistance) {
-        minDistance = distance;
-        nearestShelter = shelter;
-      }
-    }
-  });
-
-  return nearestShelter;
+  return sheltersWithDistance
+    .sort((a, b) => a.distance - b.distance)
+    .slice(0, count)
+    .map(({ distance, ...shelter }) => shelter);
 }

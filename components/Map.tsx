@@ -11,7 +11,7 @@ import { ShelterMarker } from "./ShelterMarker";
 import { RoutingMachine } from "./RoutingMachine";
 import { DEFAULT_ICON } from "../constants/mapSettings";
 import KyivCoords from "@/constants/KyivCoords";
-import findNearestShelter from "@/utils/findNearestShelter";
+import findNearestShelters from "@/utils/findNearestShelter";
 import haversine from "@/utils/calculateDistance";
 import shelterTypes from "@/constants/shelterTypes";
 import { Shelter } from "@/types/shelter";
@@ -38,7 +38,7 @@ export const Map = ({
     null
   );
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-  const [nearestShelter, setNearestShelter] = useState<Shelter | null>(null);
+  const [nearestShelters, setNearestShelters] = useState<Shelter[]>([]);
 
   useEffect(() => {
     const fetchShelters = async () => {
@@ -56,8 +56,8 @@ export const Map = ({
 
   useEffect(() => {
     if (currentMarker) {
-      const nearest = findNearestShelter(currentMarker, shelters);
-      setNearestShelter(nearest);
+      const nearest = findNearestShelters(currentMarker, shelters, 3);
+      setNearestShelters(nearest);
     }
   }, [currentMarker, shelters]);
 
@@ -109,7 +109,10 @@ export const Map = ({
             <ShelterMarker
               key={shelter.id}
               shelter={shelter}
-              isNearest={nearestShelter?.id === shelter.id}
+              isNearest={
+                Array.isArray(nearestShelters) &&
+                nearestShelters.some((s) => s.id === shelter.id)
+              }
             />
           ))}
         </TypedMarkerClusterGroup>
@@ -122,26 +125,32 @@ export const Map = ({
           </Marker>
         )}
 
-        {currentMarker && nearestShelter && (
-          <RoutingMachine
-            userPosition={currentMarker}
-            shelterPosition={[
-              nearestShelter.latitude!,
-              nearestShelter.longitude!,
-            ]}
-          />
-        )}
+        {currentMarker &&
+          nearestShelters.map((shelter) => (
+            <RoutingMachine
+              key={shelter.id}
+              userPosition={currentMarker}
+              shelterPosition={[shelter.latitude!, shelter.longitude!]}
+            />
+          ))}
 
-        {nearestShelter && currentMarker && (
+        {nearestShelters.length > 0 && currentMarker && (
           <div className={styles.nearestShelterInfo}>
-            Найближче укриття знаходиться за{" "}
-            {haversine(
-              currentMarker[0],
-              currentMarker[1],
-              nearestShelter.latitude!,
-              nearestShelter.longitude!
-            ).toFixed(2)}{" "}
-            км.
+            Найближчі укриття:
+            <ul>
+              {nearestShelters.map((shelter) => (
+                <li key={shelter.id}>
+                  {shelter.place} -{" "}
+                  {haversine(
+                    currentMarker[0],
+                    currentMarker[1],
+                    shelter.latitude!,
+                    shelter.longitude!
+                  ).toFixed(2)}{" "}
+                  км
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </MapContainer>
