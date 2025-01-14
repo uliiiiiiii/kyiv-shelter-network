@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
 import axios from "axios";
@@ -7,6 +7,13 @@ interface WalkingRouteProps {
   userPosition: [number, number];
   shelterPosition: [number, number];
   color?: string;
+  shelterId: number;
+  onRouteCalculated: (shelterId: number, routeInfo: RouteInfo | null) => void;
+}
+
+export interface RouteInfo {
+  walkingDistance: number;
+  walkingTime: number;
 }
 
 interface GraphHopperResponse {
@@ -16,23 +23,22 @@ interface GraphHopperResponse {
     points: {
       coordinates: Array<[number, number]>;
     };
-    instructions: Array<{
-      text: string;
-      distance: number;
-      time: number;
-    }>;
   }>;
 }
+
 const WalkingRoute = ({
   userPosition,
   shelterPosition,
   color = "blue",
+  shelterId,
+  onRouteCalculated,
 }: WalkingRouteProps) => {
-  const apiKey = process.env.NEXT_PUBLIC_GRAPH_HOPPER_API_KEY;
   const map = useMap();
+  const apiKey = process.env.NEXT_PUBLIC_GRAPH_HOPPER_API_KEY;
 
   useEffect(() => {
-    if (!map || !userPosition || !shelterPosition) {
+    if (!map || !userPosition || !shelterPosition || !apiKey) {
+      onRouteCalculated(shelterId, null);
       return;
     }
 
@@ -49,10 +55,18 @@ const WalkingRoute = ({
             `key=${apiKey}`
         );
 
-        const coordinates = response.data.paths[0].points.coordinates;
+        const path = response.data.paths[0];
+        const coordinates = path.points.coordinates;
         const latLngs = coordinates.map((coord) =>
           L.latLng(coord[1], coord[0])
         );
+
+        const routeInfo = {
+          walkingDistance: path.distance,
+          walkingTime: path.time,
+        };
+
+        onRouteCalculated(shelterId, routeInfo);
 
         if (routeLayer) {
           map.removeLayer(routeLayer);
@@ -63,12 +77,9 @@ const WalkingRoute = ({
           weight: 5,
           opacity: 0.7,
         }).addTo(map);
-
-        map.fitBounds(routeLayer.getBounds(), { padding: [50, 50] });
-
-        return response.data.paths[0];
       } catch (error) {
         console.error("Error fetching route:", error);
+        onRouteCalculated(shelterId, null);
       }
     };
 
@@ -79,7 +90,15 @@ const WalkingRoute = ({
         map.removeLayer(routeLayer);
       }
     };
-  }, [map, userPosition, shelterPosition, apiKey, color]);
+  }, [
+    map,
+    userPosition,
+    shelterPosition,
+    apiKey,
+    color,
+    shelterId,
+    onRouteCalculated,
+  ]);
 
   return null;
 };

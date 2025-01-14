@@ -21,6 +21,7 @@ import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import "react-leaflet-markercluster/dist/styles.min.css";
 import { MapProps } from "@/types/map";
 import WalkingRoute from "./RoutingMachineGraphHopper";
+import { RouteInfo } from "./RoutingMachineGraphHopper";
 
 interface ExtendedMarkerClusterGroupProps extends L.MarkerClusterGroupOptions {
   children: React.ReactNode;
@@ -42,6 +43,25 @@ export const Map = ({
   );
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [nearestShelters, setNearestShelters] = useState<Shelter[]>([]);
+  const [walkingDistances, setWalkingDistances] = useState<
+    Record<
+      number,
+      {
+        walkingDistance: number;
+        walkingTime: number;
+      } | null
+    >
+  >({});
+
+  const handleRouteCalculated = useCallback(
+    (shelterId: number, routeInfo: RouteInfo | null) => {
+      setWalkingDistances((prev) => ({
+        ...prev,
+        [shelterId]: routeInfo,
+      }));
+    },
+    []
+  );
 
   useEffect(() => {
     const fetchShelters = async () => {
@@ -135,9 +155,12 @@ export const Map = ({
               //   color={routeColors[index % routeColors.length]}
               // />
               <WalkingRoute
+                key={shelter.id}
                 userPosition={[currentMarker[0], currentMarker[1]]}
                 shelterPosition={[shelter.latitude!, shelter.longitude!]}
                 color={routeColors[index % routeColors.length]}
+                shelterId={shelter.id}
+                onRouteCalculated={handleRouteCalculated}
               />
             );
           })}
