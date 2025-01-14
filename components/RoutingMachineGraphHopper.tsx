@@ -7,13 +7,12 @@ interface WalkingRouteProps {
   userPosition: [number, number];
   shelterPosition: [number, number];
   color?: string;
-  shelterId: number;
-  onRouteCalculated: (shelterId: number, routeInfo: RouteInfo | null) => void;
+  onRouteCalculated?: (routeInfo: RouteInfo) => void;
 }
 
-export interface RouteInfo {
-  walkingDistance: number;
-  walkingTime: number;
+interface RouteInfo {
+  distance: number;
+  time: number;
 }
 
 interface GraphHopperResponse {
@@ -23,6 +22,11 @@ interface GraphHopperResponse {
     points: {
       coordinates: Array<[number, number]>;
     };
+    instructions: Array<{
+      text: string;
+      distance: number;
+      time: number;
+    }>;
   }>;
 }
 
@@ -30,15 +34,17 @@ const WalkingRoute = ({
   userPosition,
   shelterPosition,
   color = "blue",
-  shelterId,
   onRouteCalculated,
 }: WalkingRouteProps) => {
   const map = useMap();
   const apiKey = process.env.NEXT_PUBLIC_GRAPH_HOPPER_API_KEY;
+  const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
 
   useEffect(() => {
     if (!map || !userPosition || !shelterPosition || !apiKey) {
-      onRouteCalculated(shelterId, null);
+      console.error(
+        !apiKey ? "GraphHopper API key is missing!" : "Missing required props"
+      );
       return;
     }
 
@@ -52,6 +58,7 @@ const WalkingRoute = ({
             `point=${shelterPosition[0]},${shelterPosition[1]}&` +
             `vehicle=foot&` +
             `points_encoded=false&` +
+            `instructions=true&` +
             `key=${apiKey}`
         );
 
@@ -61,12 +68,15 @@ const WalkingRoute = ({
           L.latLng(coord[1], coord[0])
         );
 
-        const routeInfo = {
-          walkingDistance: path.distance,
-          walkingTime: path.time,
+        const newRouteInfo = {
+          distance: path.distance,
+          time: path.time,
         };
+        setRouteInfo(newRouteInfo);
 
-        onRouteCalculated(shelterId, routeInfo);
+        if (onRouteCalculated) {
+          onRouteCalculated(newRouteInfo);
+        }
 
         if (routeLayer) {
           map.removeLayer(routeLayer);
@@ -77,9 +87,18 @@ const WalkingRoute = ({
           weight: 5,
           opacity: 0.7,
         }).addTo(map);
+
+        const formattedDistance = formatDistance(path.distance);
+        const formattedTime = formatTime(path.time);
+
+        routeLayer.bindPopup(
+          `Відстань: ${formattedDistance}<br>` +
+            `Приблизний час: ${formattedTime}`
+        );
+
+        map.fitBounds(routeLayer.getBounds(), { padding: [50, 50] });
       } catch (error) {
         console.error("Error fetching route:", error);
-        onRouteCalculated(shelterId, null);
       }
     };
 
@@ -90,15 +109,24 @@ const WalkingRoute = ({
         map.removeLayer(routeLayer);
       }
     };
-  }, [
-    map,
-    userPosition,
-    shelterPosition,
-    apiKey,
-    color,
-    shelterId,
-    onRouteCalculated,
-  ]);
+  }, [map, userPosition, shelterPosition, apiKey, color, onRouteCalculated]);
+
+  const formatDistance = (meters: number): string => {
+    if (meters < 1000) {
+      return `${Math.round(meters)} м`;
+    }
+    return `${(meters / 1000).toFixed(1)} км`;
+  };
+
+  const formatTime = (milliseconds: number): string => {
+    const minutes = Math.round(milliseconds / (1000 * 60));
+    if (minutes < 60) {
+      return `${minutes} хв`;
+    }
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return `${hours} год ${remainingMinutes} хв`;
+  };
 
   return null;
 };
