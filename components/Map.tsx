@@ -57,17 +57,6 @@ export const Map = ({
     fetchShelters();
   }, []);
 
-  useEffect(() => {
-    if (currentMarker) {
-      const nearest = findNearestShelters(currentMarker, shelters, 3);
-      setNearestShelters(nearest);
-    }
-  }, [currentMarker, shelters]);
-
-  const handleLocationAdded = useCallback((location: [number, number]) => {
-    setCurrentMarker(location);
-  }, []);
-
   const handleTypeChange = useCallback((type: string) => {
     setSelectedTypes((prev) =>
       prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
@@ -82,6 +71,17 @@ export const Map = ({
         shelter.longitude
     );
   }, [shelters, selectedTypes]);
+
+  useEffect(() => {
+    if (currentMarker) {
+      const nearest = findNearestShelters(currentMarker, filteredShelters, 3);
+      setNearestShelters(nearest);
+    }
+  }, [currentMarker, filteredShelters]);
+
+  const handleLocationAdded = useCallback((location: [number, number]) => {
+    setCurrentMarker(location);
+  }, []);
 
   return (
     <div className={styles.mapContainer}>
