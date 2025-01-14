@@ -8,7 +8,7 @@ import LocateButton from "@/components/LocateButton";
 import Search from "@/components/Search";
 import ShelterTypeFilter from "@/components/ShelterTypeFilter";
 import { ShelterMarker } from "./ShelterMarker";
-import { RoutingMachine } from "./RoutingMachine";
+import RoutingMachineOSRM from "./RoutingMachineOSRM";
 import { DEFAULT_ICON } from "../constants/mapSettings";
 import KyivCoords from "@/constants/KyivCoords";
 import findNearestShelters from "@/utils/findNearestShelter";
@@ -20,6 +20,7 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import "react-leaflet-markercluster/dist/styles.min.css";
 import { MapProps } from "@/types/map";
+import WalkingRoute from "./RoutingMachineGraphHopper";
 
 interface ExtendedMarkerClusterGroupProps extends L.MarkerClusterGroupOptions {
   children: React.ReactNode;
@@ -127,9 +128,14 @@ export const Map = ({
         {currentMarker &&
           nearestShelters.map((shelter, index) => {
             return (
-              <RoutingMachine
-                key={shelter.id}
-                userPosition={currentMarker}
+              // <RoutingMachineOSRM
+              //   key={shelter.id}
+              //   userPosition={currentMarker}
+              //   shelterPosition={[shelter.latitude!, shelter.longitude!]}
+              //   color={routeColors[index % routeColors.length]}
+              // />
+              <WalkingRoute
+                userPosition={[currentMarker[0], currentMarker[1]]}
                 shelterPosition={[shelter.latitude!, shelter.longitude!]}
                 color={routeColors[index % routeColors.length]}
               />

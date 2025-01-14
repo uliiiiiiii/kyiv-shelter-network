@@ -5,7 +5,7 @@ import "leaflet-routing-machine";
 import { RoutingMachineProps, CustomRoutingControlOptions } from "@/types/map";
 import styles from "@/styles/Map.module.css";
 
-export const RoutingMachine = ({
+const RoutingMachine = ({
   userPosition,
   shelterPosition,
   color = "blue",
@@ -45,3 +45,5 @@ export const RoutingMachine = ({
 
   return null;
 };
+
+export default RoutingMachine;
