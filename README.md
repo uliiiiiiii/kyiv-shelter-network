@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏛️ Kyiv Shelters Network | Мережа укриттів Києва
 
-## Getting Started
+[English](#english) | [Українська](#українська)
 
-First, run the development server:
+## English
 
+### 📝 Description
+This project is a part of a graph theory research paper for the Junior Academy of Science (JAS). The web application is built with Next.js and utilizes Leaflet for mapping, GraphHopper for routing, and Nominatim API for geocoding.
+
+### 🌐 Demo
+Check out the live version: [Demo](https://shelter-jas.vercel.app/)
+
+### 🚀 Getting Started
+
+#### Set up the environment
+1. Install dependencies:
+```bash
+npm i
+```
+2. Create `.env` file and add your API tokens (check `.env.example` for required variables)
+
+#### Start the development server
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Made with ❤️ by Uli
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Українська
 
-## Learn More
+### 📝 Опис
+Цей проєкт є частиною дослідницької роботи з теорії графів для Малої академії наук (МАН). Веб-застосунок створено з використанням Next.js, для картографії використовується Leaflet, для маршрутизації - GraphHopper, а для геокодування - Nominatim API.
 
-To learn more about Next.js, take a look at the following resources:
+### 🌐 Демо
+Спробуйте онлайн-версію: [Демо](https://shelter-jas.vercel.app/)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 🚀 Початок роботи
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+#### Налаштування середовища
+1. Встановіть залежності:
+```bash
+npm i
+```
+2. Створіть файл `.env` та додайте всі необхідні токени (перегляньте `.env.example` для списку потрібних змінних)
 
-## Deploy on Vercel
+#### Запуск сервера розробки
+```bash
+npm run dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Зроблено з ❤️ від Uli
