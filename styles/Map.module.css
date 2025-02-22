@@ -20,6 +20,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   z-index: 1000;
   color: black;
+  display: block;
 }
 
 .checkedInput{
@@ -71,12 +72,12 @@
   color: black;
 }
 
-.showFiltersButton{
+/* .showFiltersButton{
   display: none;
 }
 
 
-@media screen and (max-width: 700px) {
+@media screen and (max-width: 700px) { */
   .showFiltersButton{
     display: block;
     background-color: white;
@@ -88,5 +89,5 @@
     border: 1px solid black;
     padding: 5px;
   }
-}
+/* } */
 
